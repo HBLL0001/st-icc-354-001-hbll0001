@@ -1,0 +1,42 @@
+services:
+  activemq:
+    image: apache/activemq-classic
+    ports:
+      - 1883:1883
+      - 5672:5672
+      - 61613:61613
+      - 61614:61614
+      - 61616:61616
+      - 8161:8161
+    networks:
+      - red-receptor
+
+  receptor:
+    image: armandogl14/practica5-receptor-app
+    ports:
+      - 8083:8083
+    depends_on:
+      - activemq
+    networks:
+      - red-receptor
+
+  cliente1:
+    image: armandogl14/practica5-cliente1-app
+    ports:
+      - 8081:8081
+    depends_on:
+      - activemq
+    networks:
+      - red-receptor
+
+  cliente2:
+    image: armandogl14/practica5-cliente2-app
+    ports:
+      - 8082:8082
+    depends_on:
+      - activemq
+    networks:
+      - red-receptor
+
+networks:
+  red-receptor:

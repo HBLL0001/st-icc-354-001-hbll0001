@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+< <head th:replace="/thymeleaf/plantilla.html::head">
+  <title th:text="${titulo}">...</title>
+</head>
+<body>
+
+<div class="container">
+  <div class="jumbotron">
+    <h1 class="display-4" th:text="${titulo}">Crear Usuario</h1>
+  </div>
+
+  <!-- El endpoint que estará procesando el formulario será enviado por el controlador      -->
+  <form enctype="application/x-www-form-urlencoded" method="post" th:attr="action=${accion}" >
+    <div class="form-group">
+      <label for="username">Username</label>
+      <!--th:value="${est != null} ? ${est.nombre} : ''"-->
+      <input th:readonly="${visualizar}" type="text"  name="username" class="form-control" id="username">
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <!--th:value="${est != null} ? ${est.nombre} : ''"-->
+      <input th:readonly="${visualizar}" type="password"  name="password" class="form-control" id="password">
+    </div>
+    <div class="form-group">
+      <label for="nombre">Nombre</label>
+      <!--th:value="${est != null} ? ${est.nombre} : ''"-->
+      <input th:readonly="${visualizar}" type="text"  name="nombre" class="form-control" id="nombre">
+    </div>
+    <div class="form-group">
+      <label for="admin">Admin</label>
+      <!--th:value="${est != null} ? ${est.nombre} : ''"-->
+      <input th:readonly="${visualizar}" type="checkbox"  name="admin" class="form-control" id="admin">
+    </div>
+    <!-- Los botones para la creación del estudiante -->
+    <button th:if="${!visualizar}" type="submit" class="btn btn-primary" th:text="${tipo}">.</button>
+    <a href="/usuario/lista" class="btn btn-primary" th:text="${salir != null} ? ${salir} : 'Cancelar'">Cancelar</a>
+  </form>
+</div>
+
+<!-- incluyendo la parte de javascript del template.        -->
+<div th:replace="/thymeleaf/plantilla.html::javascript">
+
+</div>
+
+</body>
+
+</html>

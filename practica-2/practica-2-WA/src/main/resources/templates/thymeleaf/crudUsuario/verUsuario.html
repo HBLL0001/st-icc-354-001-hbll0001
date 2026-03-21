@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+< <head th:replace="/thymeleaf/plantilla.html::head">
+  <title th:text="${titulo}">...</title>
+</head>
+<body>
+
+<div class="container">
+  <div class="jumbotron">
+    <h1 class="display-4" th:text="${titulo}">Ver Usuario</h1>
+  </div>
+
+  <!-- El endpoint que estará procesando el formulario será enviado por el controlador      -->
+  <div class="form-group">
+    <label for="username">Username</label>
+    <!--th:value="${est != null} ? ${est.nombre} : ''"-->
+    <input th:readonly="${visualizar}" th:value="${user.getUsername()}" type="text"  name="username" class="form-control" id="username">
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <!--th:value="${est != null} ? ${est.nombre} : ''"-->
+    <input th:readonly="${visualizar}" th:value="${user.getPassword()}" type="password"  name="password" class="form-control" id="password">
+  </div>
+  <div class="form-group">
+    <label for="nombre">Nombre</label>
+    <!--th:value="${est != null} ? ${est.nombre} : ''"-->
+    <input th:readonly="${visualizar}" th:value="${user.getNombre()}" type="text"  name="nombre" class="form-control" id="nombre">
+  </div>
+  <!-- Los botones para la creación del estudiante -->
+  <a href="/" class="btn btn-primary" th:text="${salir != null} ? ${salir} : 'Salir'">Salir</a>
+</div>
+
+<!-- incluyendo la parte de javascript del template.        -->
+<div th:replace="/thymeleaf/plantilla.html::javascript">
+
+</div>
+
+</body>
+
+</html>

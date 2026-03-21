@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/thymeleaf/plantilla.html::head">
+    <title th:text="${titulo}">...</title>
+</head>
+<body>
+
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4" th:text="${titulo}">....</h1>
+    </div>
+
+    <form enctype="application/x-www-form-urlencoded" method="post" th:attr="action=${accion}" class="needs-validation" novalidate>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-4">
+                    <label for="status" class="form-label" th:text="#{statuscreate}"></label>
+                    <select name="status" id="status" class="form-control" th:readonly="${visualizar}">
+                        <option th:each="status : ${listStatus}" th:value="${status}" th:text="${status}" th:selected="${status == selectstat }"></option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="metodo" class="form-label" th:text="#{metodocreate}"></label>
+                    <select name="metodo" id="metodo" class="form-control" th:readonly="${visualizar}">
+                        <option th:each="met : ${metodo}" th:value="${met}" th:text="${met}" th:selected="${met == selectmet}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="content" class="form-label" th:text="#{contentcreate}"></label>
+                    <select name="content" id="content" class="form-control">
+                        <option th:each="con : ${content}" th:value="${con}" th:text="${con}" th:selected="${con == conselect}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="nombre" class="form-label" th:text="#{nombrecreate}"></label>
+                    <input th:readonly="${visualizar}" th:value="${fname}" type="text" name="nombre" class="form-control" id="nombre">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group mb-4">
+                    <label for="desc" class="form-label" th:text="#{descripcioncreate}"></label>
+                    <textarea class="form-control" name="desc" id="desc" rows="3" th:text="${fdesc}" th:readonly="${visualizar}"></textarea>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="headers" class="form-label" th:text="#{headerscreate}"></label>
+                    <textarea class="form-control code-area" name="headers" id="headers" rows="3" th:text="${fheaders}" th:placeholder="${headerplace}" th:readonly="${visualizar}"></textarea>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="body" class="form-label" th:text="#{bodycreate}"></label>
+                    <textarea class="form-control code-area" name="body" id="body" rows="3" th:placeholder="${bodyplace}" th:text="${fbody}" th:readonly="${visualizar}"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="form-group mb-4">
+                    <label for="exp" class="form-label" th:text="#{expcreate}">Expiracion</label>
+                    <select name="exp" id="exp" class="form-control" th:readonly="${visualizar}">
+                        <option th:each="exp : ${listExp}" th:value="${exp}" th:text="'1 '+${exp}" th:selected="${exp == selectexp }"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group mb-4">
+                    <label for="dem" class="form-label" th:text="#{demcreate}"></label>
+                    <select name="dem" id="dem" class="form-control">
+                        <option th:each="dem : ${listDem}" th:value="${dem}" th:text="${dem}+'s'" th:selected="${dem == selecdem }"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-check mb-4">
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="seguridadJwdt" name="seguridadJwt" value="true" onchange="updateHiddenField(this)">
+                <input type="hidden" id="hiddenSeguridadJwt" name="seguridadJwt" value="false">
+                <label class="custom-control-label" for="seguridadJwdt" th:text="#{jwtcreate}"></label>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button th:if="${!visualizar}" type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                <span th:text="#{tipo}">.</span>
+            </button>
+            <a href="/mockycrud/" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                <span th:text="#{salircreate}"></span>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- incluyendo la parte de javascript del template. -->
+<div th:replace="/thymeleaf/plantilla.html::javascript">
+</div>
+
+<!-- Font Awesome para los iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+    .code-area {
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 14px;
+        line-height: 1.4;
+        tab-size: 4;
+    }
+
+    .custom-control-input:checked ~ .custom-control-label::before {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    .custom-switch .custom-control-label::before {
+        background-color: var(--primary-dark);
+        border-color: var(--border-color);
+    }
+
+    .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+        background-color: #fff;
+    }
+
+    .form-group {
+        position: relative;
+        transform: translateY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .form-group:hover {
+        transform: translateY(-2px);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+    }
+
+    .btn i {
+        margin-right: 8px;
+    }
+</style>
+
+<script>
+    function updateHiddenField(checkboxElem) {
+        document.getElementById('hiddenSeguridadJwt').value = checkboxElem.checked ? 'true' : 'false';
+    }
+
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+
+</body>
+</html>

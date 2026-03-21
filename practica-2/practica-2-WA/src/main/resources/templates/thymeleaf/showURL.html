@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/thymeleaf/plantilla.html::head">
+    <title th:text="${titulo}">...</title>
+</head>
+<body>
+
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4" th:text="${titulo}">....</h1>
+    </div>
+
+    <!-- El endpoint que estará procesando el formulario será enviado por el controlador      -->
+    <div class="input-group">
+        <input type="text" class="form-control" id="copyText" th:value="${url}" readonly>
+        <div class="input-group-append">
+            <button class="btn btn-primary" onclick="copyToClipboard()">Copy</button>
+        </div>
+    </div>
+    <a href="/mockycrud/" class="btn btn-primary" >Salir</a>
+
+</div>
+
+<!-- incluyendo la parte de javascript del template.        -->
+<div th:replace="/thymeleaf/plantilla.html::javascript">
+
+</div>
+
+</body>
+
+</html>
+
+<script>
+    function copyToClipboard() {
+        var copyText = document.getElementById("copyText");
+        copyText.select();
+        document.execCommand("copy");
+        alert("Texto copiado al portapapeles: " + copyText.value);
+    }
+</script>

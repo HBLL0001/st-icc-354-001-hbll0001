@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>Grafico de Linea</title>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+   <style>
+      .chart-container {
+         width: 80%;
+         margin: 20px auto;
+      }
+      canvas {
+         margin-bottom: 30px;
+      }
+   </style>
+</head>
+
+<body>
+   <div id="charts-container"></div>
+</body>
+
+</html>
+<script>
+
+
+   const charts = {};
+   //-------------------->
+
+   const stompClient = new StompJs.Client({
+      brokerURL: 'ws://localhost:8083/gs-guide-websocket'
+   });
+
+   stompClient.onConnect = (frame) => {
+
+      console.log('Connected: ' + frame);
+
+      stompClient.subscribe('/topic/greetings', (greeting) => {
+         showGreeting(greeting);
+      });
+   };
+   function connect() {
+      stompClient.activate();
+   }
+   function showGreeting(message) {
+      const binaryData = new Uint8Array(message._binaryBody);
+      const textMessage = new TextDecoder('utf-8').decode(binaryData);
+      const jsonObject = JSON.parse(textMessage);
+      console.log("Mensajeeee-->" + jsonObject.main.temp);
+
+      console.log(jsonObject.name.replace(/\s/g, '') + 'A');
+      const nombre = jsonObject.name.replace(/\s/g, '') + 'A';
+      console.log(nombre);
+      if (canvasExists(nombre)) {
+         updateCanvas(jsonObject);
+         console.log("Existe");
+      } else {
+         createCanvas(message);
+         updateCanvas(jsonObject);
+         console.log("No Existe");
+      }
+
+   }
+   function esperar(ms) {
+      return new Promise(resolve => {
+         setTimeout(resolve, ms);
+      });
+   }
+   function updateCanvas(jsonObject) {
+      const canvasTemp = document.getElementById(jsonObject.name.replace(/\s/g, '') + 'A');
+      const canvasHum = document.getElementById(jsonObject.name.replace(/\s/g, '') + 'B');
+
+      if (canvasTemp && canvasHum && charts[jsonObject.name.replace(/\s/g, '') + 'A'] && charts[jsonObject.name.replace(/\s/g, '') + 'B']) {
+         const fecha = new Date(jsonObject.sd);
+         const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+         };
+         const fechaFormateada = fecha.toLocaleDateString('es-ES', options);
+         const newLabel = fechaFormateada;
+         const newTempData = jsonObject.main.temp;
+         const newHumData = jsonObject.main.humidity;
+
+         charts[jsonObject.name.replace(/\s/g, '') + 'A'].data.labels.push(newLabel);
+         charts[jsonObject.name.replace(/\s/g, '') + 'A'].data.datasets[0].data.push(newTempData);
+         charts[jsonObject.name.replace(/\s/g, '') + 'A'].update();
+
+         charts[jsonObject.name.replace(/\s/g, '') + 'B'].data.labels.push(newLabel);
+         charts[jsonObject.name.replace(/\s/g, '') + 'B'].data.datasets[0].data.push(newHumData);
+         charts[jsonObject.name.replace(/\s/g, '') + 'B'].update();
+      } else {
+         console.error("Canvas or Chart not found, or charts not initialized properly.");
+      }
+
+   }
+   function createCanvas(message) {
+      const binaryData = new Uint8Array(message._binaryBody);
+      const textMessage = new TextDecoder('utf-8').decode(binaryData);
+      const jsonObject = JSON.parse(textMessage);
+
+      const chartContainer = document.createElement("div");
+      chartContainer.className = "chart-container";
+      document.getElementById("charts-container").appendChild(chartContainer);
+
+      const canvaId1 = jsonObject.name.replace(/\s/g, '') + 'A';
+      let canvas = document.createElement("canvas");
+      canvas.id = canvaId1;
+      chartContainer.appendChild(canvas);
+
+      let ctx = canvas.getContext('2d');
+      charts[canvaId1] = new Chart(ctx, {
+         type: 'line',
+         data: {
+            labels: [],
+            datasets: [{
+               label: `Temperatura ${jsonObject.name}`,
+               data: [],
+               backgroundColor: 'rgba(128, 128, 128, 0.2)', // Gris claro
+               borderColor: 'rgba(64, 64, 64, 1)', // Gris oscuro
+               borderWidth: 2
+            }]
+         },
+         options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+               y: {
+                  beginAtZero: true
+               }
+            }
+         }
+      });
+
+      const canvaId2 = jsonObject.name.replace(/\s/g, '') + 'B';
+      let canvas2 = document.createElement("canvas");
+      canvas2.id = canvaId2;
+      chartContainer.appendChild(canvas2);
+
+      let ctx2 = canvas2.getContext('2d');
+      charts[canvaId2] = new Chart(ctx2, {
+         type: 'line',
+         data: {
+            labels: [],
+            datasets: [{
+               label: `Humedad ${jsonObject.name}`,
+               data: [],
+               backgroundColor: 'rgba(128, 128, 128, 0.2)', // Gris claro
+               borderColor: 'rgba(64, 64, 64, 1)', // Gris oscuro
+               borderWidth: 2
+            }]
+         },
+         options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+               y: {
+                  beginAtZero: true
+               }
+            }
+         }
+      });
+   }
+
+
+
+   function canvasExists(nombre) {
+      const canvas = document.getElementById(nombre);
+      return !!canvas;
+   }
+
+   $(function () {
+      connect();
+   });
+</script>

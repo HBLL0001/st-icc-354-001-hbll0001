@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/thymeleaf/plantilla.html::head">
+  <head>
+    <title th:text="${titulo}">Listar</title>
+  </head>
+<body>
+
+<div class="container">
+  <div class="jumbotron">
+    <h1 class="display-4" th:text="${titulo}">....</h1>
+    <p class="lead">Listado de los Usuarios</p>
+  </div>
+
+  <a href="/usuario/crear" class="btn btn-primary">Nuevo Usuario</a>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th scope="col">Username</th>
+      <th scope="col">Nombre</th>
+      <th scope="col">Rol</th>
+      <th scope="col">Activo</th>
+      <th scope="col">Accion</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${lista}">
+      <th scope="row">
+        <a th:text="${user.getUsername()}" th:href="'lista/'+${user.getUsername()}"/>
+      </th>
+      <td th:text="${user.getNombre()}">Nombre</td>
+      <td th:text="${user.getRols().get(0).getRole()}">Rol</td>
+      <td th:text="${user.isActivo()}">Activo</td>
+      <td>
+        <a th:text="Editar" th:href="'editar/'+${user.getUsername()}" th class="btn btn-secondary btn-sm"/> |
+        <a th:text="Eliminar" th:href="'eliminar/'+${user.getUsername()}" th class="btn btn-danger btn-sm"/>
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<!-- incluyendo la parte de javascript del template.        -->
+<div th:replace="/thymeleaf/plantilla.html::javascript">
+
+</div>
+
+</body>
+
+</html>

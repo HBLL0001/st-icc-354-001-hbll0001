@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #1a1a1a;
+            --secondary-dark: #2d2d2d;
+            --accent-color: #4a9eff;
+            --text-color: #ffffff;
+            --hover-color: #3d84d9;
+            --border-color: #404040;
+            --error-color: #ff4444;
+            --success-color: #00C851;
+        }
+
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .card {
+            background-color: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: perspective(1000px) rotateX(0deg);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: perspective(1000px) rotateX(2deg);
+        }
+
+        .card-header {
+            background-color: rgba(74, 158, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+        }
+
+        .card-header h3 {
+            color: var(--accent-color);
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-control {
+            background-color: var(--primary-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background-color: var(--primary-dark);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.25rem rgba(74, 158, 255, 0.25);
+            color: var(--text-color);
+        }
+
+        .form-label {
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(74, 158, 255, 0.4);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .alert {
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .alert-danger {
+            background-color: rgba(255, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .alert-success {
+            background-color: rgba(0, 200, 81, 0.1);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .alert:hover {
+            transform: translateY(-2px);
+        }
+
+        .text-muted {
+            color: #888 !important;
+        }
+
+        .list-unstyled {
+            background-color: var(--primary-dark);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            margin-top: 15px;
+        }
+
+        .list-unstyled li {
+            margin: 8px 0;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Iniciar Sesión</h3>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${param.error}" class="alert alert-danger">
+                            Usuario o contraseña inválidos.
+                        </div>
+                        <div th:if="${param.logout}" class="alert alert-success">
+                            Has cerrado sesión exitosamente.
+                        </div>
+                        <form th:action="@{/login}" method="post">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Usuario:</label>
+                                <input type="text" class="form-control" id="username" name="username" required autofocus>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Contraseña:</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                            </div>
+                        </form>
+                        <div class="mt-3">
+                            <p class="text-muted text-center">Usuarios por defecto:</p>
+                            <ul class="list-unstyled text-center">
+                                <li>Admin: usuario = admin, contraseña = admin</li>
+                                <li>Usuario: usuario = user, contraseña = user</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
