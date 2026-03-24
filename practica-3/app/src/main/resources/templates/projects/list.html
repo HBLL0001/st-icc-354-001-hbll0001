@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section th:fragment="content">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-semibold" th:text="#{project.title}">Projects</h2>
+    <a th:href="@{/projects/new}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i><span th:text="#{project.new}">New Project</span>
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th th:text="#{project.name}">Name</th>
+                    <th th:text="#{project.description}">Description</th>
+                    <th sec:authorize="hasRole('ADMIN')">Owner</th>
+                    <th th:text="#{project.actions}">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(projects)}">
+                    <td colspan="4" class="text-center py-4" style="color:var(--muted)"
+                        th:text="#{project.noProjects}">No projects.</td>
+                </tr>
+                <tr th:each="p : ${projects}">
+                    <td><strong th:text="${p.name}">Name</strong></td>
+                    <td style="color:var(--muted)" th:text="${p.description}">-</td>
+                    <td sec:authorize="hasRole('ADMIN')" th:text="${p.owner.username}">user</td>
+                    <td>
+                        <a th:href="@{/projects/{id}/edit(id=${p.id})}" class="btn btn-sm btn-outline-secondary me-1">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form th:action="@{/projects/{id}/delete(id=${p.id})}" method="post"
+                              class="d-inline" onsubmit="return confirm('Delete this project?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</section>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section th:fragment="content">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-semibold" th:text="#{admin.users.title}">User Management</h2>
+    <a th:href="@{/admin/users/new}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i><span th:text="#{admin.users.new}">New User</span>
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th th:text="#{admin.users.username}">Username</th>
+                    <th th:text="#{admin.users.role}">Role</th>
+                    <th th:text="#{admin.users.enabled}">Enabled</th>
+                    <th th:text="#{admin.users.actions}">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.username}">admin</td>
+                    <td>
+                        <form th:action="@{/admin/users/{id}/role(id=${u.id})}" method="post"
+                              class="d-flex gap-2 align-items-center">
+                            <select name="role" class="form-select form-select-sm" style="width:auto">
+                                <option th:each="r : ${roles}" th:value="${r.name()}"
+                                        th:text="${r.name()}"
+                                        th:selected="${u.role == r}">ROLE_USER</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                    th:text="#{admin.users.updateRole}">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <i th:if="${u.enabled}" class="bi bi-check-circle-fill" style="color:#48bb78"></i>
+                        <i th:unless="${u.enabled}" class="bi bi-x-circle-fill" style="color:#fc8181"></i>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/users/{id}/toggle(id=${u.id})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                    th:text="#{admin.users.toggle}">Toggle</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</section>
+</body>
+</html>

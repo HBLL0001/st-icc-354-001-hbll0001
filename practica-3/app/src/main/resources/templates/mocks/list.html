@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section th:fragment="content">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-semibold" th:text="#{mock.title}">Mock Endpoints</h2>
+    <a th:href="@{/mocks/new}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i><span th:text="#{mock.new}">New Mock</span>
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th th:text="#{mock.name}">Name</th>
+                    <th th:text="#{mock.method}">Method</th>
+                    <th th:text="#{mock.path}">Path</th>
+                    <th th:text="#{mock.statusCode}">Status</th>
+                    <th th:text="#{mock.jwtStatus}">JWT</th>
+                    <th th:text="#{mock.expiresAt}">Expires</th>
+                    <th sec:authorize="hasRole('ADMIN')">Owner</th>
+                    <th th:text="#{mock.actions}">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(mocks)}">
+                    <td colspan="8" class="text-center py-4" style="color:var(--muted)"
+                        th:text="#{mock.noMocks}">No mocks.</td>
+                </tr>
+                <tr th:each="m : ${mocks}">
+                    <td>
+                        <div class="fw-semibold" th:text="${m.name}">name</div>
+                        <div class="small" style="color:var(--muted)" th:text="${m.description}"></div>
+                    </td>
+                    <td>
+                        <span th:class="'badge-method badge-' + ${m.method.name()}"
+                              th:text="${m.method.name()}">GET</span>
+                    </td>
+                    <td><code class="small" style="color:var(--muted)">/api<span th:text="${m.path}"></span></code></td>
+                    <td th:text="${m.statusCode}">200</td>
+                    <td>
+                        <i th:if="${m.jwtEnabled}" class="bi bi-shield-lock-fill" style="color:#6c63ff"></i>
+                        <i th:unless="${m.jwtEnabled}" class="bi bi-shield-slash" style="color:var(--muted)"></i>
+                    </td>
+                    <td class="small" style="color:var(--muted)"
+                        th:text="${#temporals.format(m.expiresAt,'yyyy-MM-dd')}">-</td>
+                    <td sec:authorize="hasRole('ADMIN')" th:text="${m.owner.username}">user</td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a th:href="@{/mocks/{id}/edit(id=${m.id})}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a th:if="${m.jwtEnabled}" th:href="@{/mocks/{id}/token(id=${m.id})}"
+                               class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-key"></i>
+                            </a>
+                            <form th:action="@{/mocks/{id}/delete(id=${m.id})}" method="post"
+                                  class="d-inline" onsubmit="return confirm('Delete this mock?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</section>
+</body>
+</html>

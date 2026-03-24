@@ -7,16 +7,16 @@ FROM gradle:8.5-jdk21 AS builder
 
 WORKDIR /app
 
-# Copy Gradle wrapper and config first (cache dependencies)
-COPY ../practica-1/build.gradle ../practica-1/settings.gradle ./
-COPY ../practica-1/gradlew ./
-COPY ../practica-1/gradle ./gradle
+# Copy Gradle wrapper and config first (layer cache for dependencies)
+COPY app/build.gradle app/settings.gradle ./
+COPY app/gradlew ./
+COPY app/gradle ./gradle
 
 # Download dependencies (cached layer)
 RUN gradle dependencies --no-daemon || true
 
 # Copy source code
-COPY ../practica-1/src ./src
+COPY app/src ./src
 
 # Build the fat JAR (skip tests for faster build)
 RUN gradle bootJar --no-daemon
