@@ -1,0 +1,10 @@
+{
+  "name": "lab-reservations-lambda",
+  "version": "1.0.0",
+  "description": "AWS Lambda functions for lab reservation system – ICC-354 Practica 6",
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.500.0",
+    "@aws-sdk/lib-dynamodb": "^3.500.0"
+  }
+}

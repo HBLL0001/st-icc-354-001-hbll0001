@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reservas de Laboratorio – EICT | PUCMM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg: #0f111a; --surface: #161929; --surface2: #1e2235;
+            --accent: #6c63ff; --accent-hover: #5a52e0;
+            --text: #e2e8f0; --muted: #7a869a; --border: #2d3252;
+            --success: #48bb78; --danger: #fc8181; --warning: #f6c90e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+        /* ─── Header ───────────────────────────── */
+        .header {
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { display: flex; align-items: center; gap: .6rem; }
+        .logo i { font-size: 1.5rem; color: var(--accent); }
+        .logo span { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+        .logo small { color: var(--muted); font-size: .75rem; margin-left: .3rem; }
+        .header-links a {
+            color: var(--muted); text-decoration: none; font-size: .85rem; font-weight: 500;
+            transition: color .2s;
+        }
+        .header-links a:hover { color: var(--accent); }
+
+        /* ─── Main ─────────────────────────────── */
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+        h1 { font-size: 1.5rem; font-weight: 600; text-align: center; margin-bottom: 1.5rem; }
+
+        /* ─── Toolbar ──────────────────────────── */
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .btn {
+            padding: .55rem 1.2rem; border-radius: 8px; border: none; cursor: pointer;
+            font-family: inherit; font-size: .85rem; font-weight: 600; transition: all .2s;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+        .btn-secondary:hover { color: var(--text); border-color: var(--accent); }
+        .btn-sm { padding: .4rem .8rem; font-size: .8rem; }
+
+        /* ─── Table ────────────────────────────── */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left; padding: .75rem 1rem; color: var(--muted); font-size: .75rem;
+            text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border);
+            background: var(--surface2);
+        }
+        td { padding: .75rem 1rem; border-bottom: 1px solid var(--border); font-size: .88rem; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--surface2); }
+        .empty-msg { text-align: center; color: var(--muted); padding: 2rem; font-size: .9rem; }
+
+        /* ─── Lab badges ───────────────────────── */
+        .lab-badge { padding: .2em .6em; border-radius: 6px; font-size: .75rem; font-weight: 600; }
+        .lab-redes { background: #1a3a4f; color: #63b3ed; }
+        .lab-computacion { background: #1a4731; color: #48bb78; }
+        .lab-comunicaciones { background: #3d2263; color: #b794f4; }
+        .lab-electronica { background: #4a3800; color: #f6c90e; }
+
+        /* ─── Modal overlay ────────────────────── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65);
+            z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+            width: 100%; max-width: 480px; padding: 2rem; position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,.5);
+        }
+        .modal h2 { font-size: 1.15rem; margin-bottom: 1.5rem; text-align: center; }
+        .modal-close {
+            position: absolute; top: 1rem; right: 1rem; background: none; border: none;
+            color: var(--muted); font-size: 1.2rem; cursor: pointer;
+        }
+        .modal-close:hover { color: var(--text); }
+
+        /* ─── Form ─────────────────────────────── */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; color: var(--muted); font-size: .8rem; font-weight: 500; margin-bottom: .3rem; }
+        .form-group input, .form-group select {
+            width: 100%; padding: .6rem .9rem; background: var(--surface2);
+            border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+            font-family: inherit; font-size: .88rem; transition: border-color .2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,.15);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+        .form-actions { display: flex; gap: .8rem; margin-top: 1.5rem; }
+        .form-actions .btn { flex: 1; }
+        .form-error { color: var(--danger); font-size: .8rem; margin-top: .3rem; display: none; }
+        .form-error.show { display: block; }
+
+        /* ─── History panel ────────────────────── */
+        .history-bar {
+            display: none; background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1rem;
+            align-items: center; gap: .8rem; flex-wrap: wrap;
+        }
+        .history-bar.active { display: flex; }
+        .history-bar label { color: var(--muted); font-size: .8rem; font-weight: 500; }
+        .history-bar input[type="date"] {
+            padding: .4rem .7rem; background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 6px; color: var(--text); font-family: inherit; font-size: .85rem;
+        }
+
+        /* ─── Availability grid ────────────────── */
+        .avail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: .5rem; margin: 1rem 0; }
+        .avail-slot {
+            padding: .5rem; border-radius: 8px; text-align: center; font-size: .8rem;
+            border: 1px solid var(--border); cursor: pointer; transition: all .2s;
+        }
+        .avail-slot.available { background: var(--surface2); }
+        .avail-slot.available:hover { border-color: var(--accent); background: rgba(108,99,255,.1); }
+        .avail-slot.full { background: #4a1a1a33; border-color: #4a1a1a; color: var(--muted); cursor: not-allowed; }
+        .avail-slot.selected { border-color: var(--accent); background: rgba(108,99,255,.2); }
+        .avail-slot .slot-time { font-weight: 600; }
+        .avail-slot .slot-count { font-size: .7rem; color: var(--muted); margin-top: .2rem; }
+
+        /* ─── Toast ────────────────────────────── */
+        .toast {
+            position: fixed; bottom: 2rem; right: 2rem; padding: .8rem 1.4rem;
+            border-radius: 10px; font-size: .85rem; font-weight: 500; z-index: 200;
+            transform: translateY(100px); opacity: 0; transition: all .3s;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-success { background: #1a4731; color: var(--success); border: 1px solid #2d6a4f; }
+        .toast-error { background: #4a1a1a; color: var(--danger); border: 1px solid #822; }
+
+        /* ─── Responsive ───────────────────────── */
+        @media (max-width: 600px) {
+            .header { padding: .8rem 1rem; }
+            .container { padding: 1.2rem 1rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .avail-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════ Header ═══════════ -->
+<header class="header">
+    <div class="logo">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span>PUCMM</span>
+        <small>ICC-354</small>
+    </div>
+    <div class="header-links">
+        <a href="#" id="toggleHistory">
+            <i class="bi bi-clock-history me-1"></i> Registros Pasados
+        </a>
+    </div>
+</header>
+
+<!-- ═══════════ Main ═══════════ -->
+<div class="container">
+    <h1>Reservas de Laboratorio – EICT</h1>
+
+    <!-- History date range bar -->
+    <div class="history-bar" id="historyBar">
+        <label>Desde:</label>
+        <input type="date" id="dateFrom"/>
+        <label>Hasta:</label>
+        <input type="date" id="dateTo"/>
+        <button class="btn btn-secondary btn-sm" id="btnSearch">
+            <i class="bi bi-search"></i> Buscar
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btnCloseHistory">
+            <i class="bi bi-x-lg"></i> Cerrar
+        </button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="btn btn-primary" id="btnAddReserva">
+            <i class="bi bi-plus-lg"></i> Agregar Reserva
+        </button>
+        <span style="color:var(--muted);font-size:.8rem" id="tableInfo"></span>
+    </div>
+
+    <!-- Reservations table -->
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Laboratorio</th>
+                    <th>Fecha y Hora</th>
+                </tr>
+            </thead>
+            <tbody id="reservationsBody">
+                <tr><td colspan="4" class="empty-msg">Cargando reservas…</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════ Registration Modal ═══════════ -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="modal-close" id="modalClose"><i class="bi bi-x-lg"></i></button>
+        <h2>Registro Reserva</h2>
+        <form id="reservaForm">
+            <div class="form-group">
+                <label for="fId">ID (Matrícula)</label>
+                <input type="text" id="fId" placeholder="Ej: 1011111" required/>
+            </div>
+            <div class="form-group">
+                <label for="fNombre">Nombre</label>
+                <input type="text" id="fNombre" placeholder="Nombre completo" required/>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fEmail">Correo</label>
+                    <input type="email" id="fEmail" placeholder="correo@pucmm.edu.do" required/>
+                </div>
+                <div class="form-group">
+                    <label for="fCarrera">Carrera</label>
+                    <input type="text" id="fCarrera" placeholder="Ej: ITT" required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="fLab">Laboratorio</label>
+                <select id="fLab" required>
+                    <option value="">Seleccionar Laboratorio</option>
+                    <option value="REDES">Redes</option>
+                    <option value="Computación">Computación</option>
+                    <option value="Comunicaciones">Comunicaciones</option>
+                    <option value="Electrónica">Electrónica</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fDate">Fecha Reserva</label>
+                <input type="date" id="fDate" required/>
+            </div>
+
+            <!-- Availability grid (loads on date+lab selection) -->
+            <div id="availSection" style="display:none">
+                <label style="color:var(--muted);font-size:.8rem;font-weight:500;margin-bottom:.5rem;display:block">
+                    Seleccionar Horario (máx. 7 personas/hora)
+                </label>
+                <div class="avail-grid" id="availGrid"></div>
+                <input type="hidden" id="fHour" required/>
+            </div>
+
+            <div id="formError" class="form-error"></div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">OK</button>
+                <button type="button" class="btn btn-secondary" id="btnCancel">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ═══════════ Toast ═══════════ -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════
+// Configuration – Update API_BASE with your API Gateway URL
+// ════════════════════════════════════════════════════
+const API_BASE = "https://YOUR_API_GATEWAY_ID.execute-api.us-east-1.amazonaws.com/prod";
+
+// ════════════════════════════════════════════════════
+// DOM refs
+// ════════════════════════════════════════════════════
+const tbody         = document.getElementById("reservationsBody");
+const tableInfo     = document.getElementById("tableInfo");
+const modalOverlay  = document.getElementById("modalOverlay");
+const form          = document.getElementById("reservaForm");
+const formError     = document.getElementById("formError");
+const availSection  = document.getElementById("availSection");
+const availGrid     = document.getElementById("availGrid");
+const fHour         = document.getElementById("fHour");
+const historyBar    = document.getElementById("historyBar");
+const toast         = document.getElementById("toast");
+
+// ════════════════════════════════════════════════════
+// Helpers
+// ════════════════════════════════════════════════════
+function showToast(msg, type = "success") {
+    toast.textContent = msg;
+    toast.className = `toast toast-${type} show`;
+    setTimeout(() => toast.classList.remove("show"), 3500);
+}
+
+function labBadge(lab) {
+    const cls = {
+        "REDES": "lab-redes",
+        "Computación": "lab-computacion",
+        "Comunicaciones": "lab-comunicaciones",
+        "Electrónica": "lab-electronica"
+    }[lab] || "lab-redes";
+    return `<span class="lab-badge ${cls}">${lab}</span>`;
+}
+
+function formatDateTime(date, hour) {
+    const [y, m, d] = date.split("-");
+    return `${d}/${m}/${y} ${hour}:00 a ${hour + 1}:00`;
+}
+
+// ════════════════════════════════════════════════════
+// API calls
+// ════════════════════════════════════════════════════
+async function fetchActive() {
+    try {
+        const res = await fetch(`${API_BASE}/reservations`);
+        const data = await res.json();
+        renderTable(data.reservations || []);
+        tableInfo.textContent = `${(data.reservations || []).length} reservas activas`;
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">Error al cargar reservas. Verifica la conexión API.</td></tr>';
+    }
+}
+
+async function fetchHistory(from, to) {
+    try {
+        const res = await fetch(`${API_BASE}/reservations/history?from=${from}&to=${to}`);
+        const data = await res.json();
+        renderTable(data.reservations || []);
+        tableInfo.textContent = `${(data.reservations || []).length} registros (${from} → ${to})`;
+    } catch (e) {
+        showToast("Error al buscar registros", "error");
+    }
+}
+
+async function fetchAvailability(date, lab) {
+    try {
+        const res = await fetch(`${API_BASE}/availability?date=${date}&lab=${encodeURIComponent(lab)}`);
+        const data = await res.json();
+        renderAvailability(data.availability || []);
+    } catch (e) {
+        availGrid.innerHTML = '<div style="color:var(--danger);font-size:.8rem">Error al cargar disponibilidad</div>';
+    }
+}
+
+async function createReservation(body) {
+    const res = await fetch(`${API_BASE}/reservations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+    return res.json();
+}
+
+// ════════════════════════════════════════════════════
+// Rendering
+// ════════════════════════════════════════════════════
+function renderTable(items) {
+    if (!items.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">No hay reservas registradas</td></tr>';
+        return;
+    }
+    tbody.innerHTML = items.map(r => `
+        <tr>
+            <td><strong>${r.studentId}</strong></td>
+            <td>${r.name}</td>
+            <td>${labBadge(r.lab)}</td>
+            <td>${formatDateTime(r.date, r.hour)}</td>
+        </tr>
+    `).join("");
+}
+
+function renderAvailability(slots) {
+    availGrid.innerHTML = slots.map(s => `
+        <div class="avail-slot ${s.full ? 'full' : 'available'}"
+             data-hour="${s.hour}" ${s.full ? '' : 'onclick="selectSlot(this)"'}>
+            <div class="slot-time">${s.label}</div>
+            <div class="slot-count">${s.available}/${7} disp.</div>
+        </div>
+    `).join("");
+    fHour.value = "";
+}
+
+function selectSlot(el) {
+    document.querySelectorAll(".avail-slot").forEach(s => s.classList.remove("selected"));
+    el.classList.add("selected");
+    fHour.value = el.dataset.hour;
+}
+
+// ════════════════════════════════════════════════════
+// Modal logic
+// ════════════════════════════════════════════════════
+function openModal() {
+    form.reset();
+    formError.classList.remove("show");
+    availSection.style.display = "none";
+    availGrid.innerHTML = "";
+    fHour.value = "";
+    // Set min date to today
+    document.getElementById("fDate").min = new Date().toISOString().split("T")[0];
+    modalOverlay.classList.add("active");
+}
+
+function closeModal() {
+    modalOverlay.classList.remove("active");
+}
+
+document.getElementById("btnAddReserva").onclick = openModal;
+document.getElementById("modalClose").onclick = closeModal;
+document.getElementById("btnCancel").onclick = closeModal;
+modalOverlay.addEventListener("click", e => { if (e.target === modalOverlay) closeModal(); });
+
+// Load availability when date + lab are both selected
+["fDate", "fLab"].forEach(id => {
+    document.getElementById(id).addEventListener("change", () => {
+        const date = document.getElementById("fDate").value;
+        const lab = document.getElementById("fLab").value;
+        if (date && lab) {
+            availSection.style.display = "block";
+            fetchAvailability(date, lab);
+        }
+    });
+});
+
+// ════════════════════════════════════════════════════
+// Form submit
+// ════════════════════════════════════════════════════
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    formError.classList.remove("show");
+
+    const body = {
+        studentId: document.getElementById("fId").value.trim(),
+        name: document.getElementById("fNombre").value.trim(),
+        email: document.getElementById("fEmail").value.trim(),
+        carrera: document.getElementById("fCarrera").value.trim(),
+        lab: document.getElementById("fLab").value,
+        date: document.getElementById("fDate").value,
+        hour: parseInt(fHour.value, 10),
+    };
+
+    if (!fHour.value) {
+        formError.textContent = "Debes seleccionar un horario disponible";
+        formError.classList.add("show");
+        return;
+    }
+
+    try {
+        const data = await createReservation(body);
+        if (data.error) {
+            formError.textContent = data.error;
+            formError.classList.add("show");
+        } else {
+            closeModal();
+            showToast("Reserva creada exitosamente ✓");
+            fetchActive();
+        }
+    } catch (err) {
+        formError.textContent = "Error de conexión con el servidor";
+        formError.classList.add("show");
+    }
+});
+
+// ════════════════════════════════════════════════════
+// History panel
+// ════════════════════════════════════════════════════
+document.getElementById("toggleHistory").onclick = (e) => {
+    e.preventDefault();
+    historyBar.classList.toggle("active");
+};
+document.getElementById("btnCloseHistory").onclick = () => {
+    historyBar.classList.remove("active");
+    fetchActive();
+};
+document.getElementById("btnSearch").onclick = () => {
+    const from = document.getElementById("dateFrom").value;
+    const to = document.getElementById("dateTo").value;
+    if (!from || !to) { showToast("Selecciona ambas fechas", "error"); return; }
+    fetchHistory(from, to);
+};
+
+// ════════════════════════════════════════════════════
+// Init
+// ════════════════════════════════════════════════════
+fetchActive();
+</script>
+</body>
+</html>
