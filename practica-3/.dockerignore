@@ -1,0 +1,13 @@
+# Ignore build artifacts and IDE files
+.gradle
+build
+.idea
+*.iml
+*.ipr
+*.iws
+.settings
+.classpath
+.project
+bin
+out
+data

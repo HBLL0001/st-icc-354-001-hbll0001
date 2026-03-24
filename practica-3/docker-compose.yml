@@ -1,0 +1,73 @@
+# ==============================================
+# Docker Compose – Mockup API Server (practica-3)
+# ==============================================
+# Usage:
+#   docker compose up -d
+#   docker compose down
+#
+# All values come from the .env file.
+
+services:
+
+  # ── Spring Boot Application ─────────────────
+  app:
+    build:
+      context: ..
+      dockerfile: practica-3/Dockerfile
+    container_name: mockup-api-app
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST:-db}:${DB_PORT:-5432}/${POSTGRES_DB:-mockdb}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-mockuser}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-mockpass123}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      JWT_SECRET: ${JWT_SECRET:-bW9ja3VwLWFwaS1zZXJ2ZXItc2VjcmV0LWtleS0yNTZiaXRzLWxvbmcx}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # ── PostgreSQL Database ─────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: mockup-api-db
+    # NO ports exposed to host (requirement #4)
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mockdb}
+      POSTGRES_USER: ${POSTGRES_USER:-mockuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mockpass123}
+    volumes:
+      - ${DB_VOLUME_PATH:-./data/postgres}:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mockuser} -d ${POSTGRES_DB:-mockdb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── pgAdmin (Web Admin) ────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mockup-api-pgadmin
+    ports:
+      - "${PGADMIN_PORT:-8082}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@mock.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin123}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge

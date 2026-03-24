@@ -27,9 +27,10 @@ dependencies {
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // JPA / H2
+    // JPA / H2 + PostgreSQL
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
 
     // Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
