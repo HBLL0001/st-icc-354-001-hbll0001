@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Editar Estudiante</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+  <h1 class="text-center">Editar Estudiante</h1>
+  <div class="card p-4 shadow-sm">
+    <form id="editForm">
+      <input type="hidden" id="matricula" th:value="${student.matricula}">
+      <div class="mb-3">
+        <label class="form-label">Nombre:</label>
+        <input type="text" id="nombre" class="form-control" th:value="${student.nombre}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Apellido:</label>
+        <input type="text" id="apellido" class="form-control" th:value="${student.apellido}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Teléfono:</label>
+        <input type="text" id="telefono" class="form-control" th:value="${student.telefono}" required>
+      </div>
+      <button type="button" class="btn btn-success" onclick="updateStudent()">✅ Actualizar</button>
+      <a href="/student/" class="btn btn-secondary">↩️ Volver</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  function updateStudent() {
+    const matricula = document.getElementById("matricula").value;
+    const nombre = document.getElementById("nombre").value;
+    const apellido = document.getElementById("apellido").value;
+    const telefono = document.getElementById("telefono").value;
+
+    fetch('/student/actualizar', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ matricula, nombre, apellido, telefono })
+    }).then(response => {
+      if (response.ok) {
+        window.location.href = "/student/";
+      } else {
+        alert("Error al actualizar el estudiante.");
+      }
+    });
+  }
+</script>
+</body>
+</html>
