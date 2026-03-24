@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="#{login.title} + ' – ' + #{app.title}">Sign In</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        :root { --accent: #6c63ff; --bg: #0f111a; --surface: #161929; --border: #2d3252; --text: #e2e8f0; --muted: #7a869a; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 400px; }
+        .brand { color: var(--accent); font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: .5rem; }
+        .brand-sub { color: var(--muted); text-align: center; font-size: .875rem; margin-bottom: 2rem; }
+        .form-control { background: #0f111a; border: 1px solid var(--border); color: var(--text); padding: .75rem 1rem; border-radius: 8px; }
+        .form-control:focus { background: #0f111a; color: var(--text); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,.15); }
+        .form-label { color: var(--muted); font-size: .85rem; font-weight: 500; }
+        .btn-login { background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%); border: none; border-radius: 8px; padding: .75rem; font-weight: 600; width: 100%; color: #fff; transition: opacity .2s; }
+        .btn-login:hover { opacity: .9; color: #fff; }
+        .alert-err { background: #4a1a1a; color: #fc8181; border: 1px solid #822; border-radius: 8px; padding: .75rem 1rem; margin-bottom: 1rem; font-size: .875rem; }
+        .alert-ok { background: #1a4731; color: #48bb78; border: 1px solid #2d6a4f; border-radius: 8px; padding: .75rem 1rem; margin-bottom: 1rem; font-size: .875rem; }
+        .lang-switch { text-align: center; margin-top: 1.5rem; font-size: .8rem; }
+        .lang-switch a { color: var(--muted); text-decoration: none; margin: 0 .3rem; }
+        .lang-switch a:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <div class="brand"><i class="bi bi-lightning-charge-fill"></i> MockupAPI</div>
+    <div class="brand-sub" th:text="#{app.title}">MockupAPI Server</div>
+
+    <div th:if="${param.error}" class="alert-err">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        <span th:text="#{login.error}">Invalid credentials.</span>
+    </div>
+    <div th:if="${param.logout}" class="alert-ok">
+        <i class="bi bi-check-circle me-1"></i>
+        <span th:text="#{login.logout}">Logged out.</span>
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="mb-3">
+            <label for="username" class="form-label" th:text="#{login.username}">Username</label>
+            <input id="username" name="username" type="text" class="form-control" autocomplete="username" required autofocus/>
+        </div>
+        <div class="mb-4">
+            <label for="password" class="form-label" th:text="#{login.password}">Password</label>
+            <input id="password" name="password" type="password" class="form-control" autocomplete="current-password" required/>
+        </div>
+        <button type="submit" class="btn-login" th:text="#{login.submit}">Sign In</button>
+    </form>
+
+    <div class="lang-switch">
+        <a th:href="@{/login(lang=en)}">EN</a> | <a th:href="@{/login(lang=es)}">ES</a>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section th:fragment="content">
+
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a th:href="@{/mocks}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i><span th:text="#{btn.back}">Back</span>
+    </a>
+    <h2 class="mb-0 fw-semibold"
+        th:text="${endpoint.id != null} ? #{mock.edit} : #{mock.new}">Mock</h2>
+</div>
+
+<div class="card">
+<div class="card-body p-4">
+<form th:action="${endpoint.id != null} ? @{/mocks/{id}/edit(id=${endpoint.id})} : @{/mocks/new}"
+      method="post" id="mockForm">
+
+    <!-- Name + Description -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label" th:text="#{mock.name}">Name</label>
+            <input type="text" name="name" class="form-control" th:value="${endpoint.name}" required/>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" th:text="#{mock.description}">Description</label>
+            <input type="text" name="description" class="form-control" th:value="${endpoint.description}"/>
+        </div>
+    </div>
+
+    <!-- Path + Method -->
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label class="form-label" th:text="#{mock.path}">Path</label>
+            <div class="input-group">
+                <span class="input-group-text">/api</span>
+                <input type="text" name="path" class="form-control"
+                       th:value="${endpoint.path}" placeholder="/users/profile" required/>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" th:text="#{mock.method}">Method</label>
+            <select name="method" class="form-select" required>
+                <option th:each="m : ${methods}" th:value="${m.name()}"
+                        th:text="${m.name()}"
+                        th:selected="${endpoint.method == m}">GET</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Status Code + Content-Type -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label" th:text="#{mock.statusCode}">Status Code</label>
+            <input type="number" name="statusCode" class="form-control"
+                   th:value="${endpoint.statusCode != 0} ? ${endpoint.statusCode} : 200"
+                   min="100" max="599" required/>
+        </div>
+        <div class="col-md-8">
+            <label class="form-label" th:text="#{mock.contentType}">Content-Type</label>
+            <input type="text" name="contentType" class="form-control"
+                   th:value="${endpoint.contentType != null} ? ${endpoint.contentType} : 'application/json'"
+                   placeholder="application/json"/>
+        </div>
+    </div>
+
+    <!-- Response Body -->
+    <div class="mb-3">
+        <label class="form-label" th:text="#{mock.body}">Response Body</label>
+        <textarea name="body" class="form-control" rows="6"
+                  style="font-family:monospace;font-size:.875rem"
+                  th:text="${endpoint.body}"></textarea>
+    </div>
+
+    <!-- Response Headers (dynamic) -->
+    <div class="mb-3">
+        <label class="form-label" th:text="#{mock.headers}">Response Headers</label>
+        <div id="headersContainer">
+            <div th:each="h : ${endpoint.headers}" class="row mb-2 header-row">
+                <div class="col-5">
+                    <input type="text" name="headerKeys" class="form-control"
+                           th:value="${h.headerKey}" th:placeholder="#{mock.headers.key}"/>
+                </div>
+                <div class="col-5">
+                    <input type="text" name="headerValues" class="form-control"
+                           th:value="${h.headerValue}" th:placeholder="#{mock.headers.value}"/>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                            onclick="removeHeader(this)"><i class="bi bi-x-lg"></i></button>
+                </div>
+            </div>
+            <!-- Always start with one empty row if no headers -->
+            <div th:if="${#lists.isEmpty(endpoint.headers)}" class="row mb-2 header-row">
+                <div class="col-5">
+                    <input type="text" name="headerKeys" class="form-control"
+                           th:placeholder="#{mock.headers.key}"/>
+                </div>
+                <div class="col-5">
+                    <input type="text" name="headerValues" class="form-control"
+                           th:placeholder="#{mock.headers.value}"/>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                            onclick="removeHeader(this)"><i class="bi bi-x-lg"></i></button>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addHeader()">
+            <i class="bi bi-plus-lg me-1"></i><span th:text="#{mock.headers.add}">Add Header</span>
+        </button>
+    </div>
+
+    <!-- Expiration + Delay + JWT -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label" th:text="#{mock.expiration}">Expiration</label>
+            <select name="expirationOption" class="form-select">
+                <option th:each="opt : ${expirations}"
+                        th:value="${opt.name()}"
+                        th:text="${opt.label}"
+                        th:selected="${endpoint.expirationOption == opt}">1 año</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" th:text="#{mock.delay}">Delay (s)</label>
+            <input type="number" name="delaySeconds" class="form-control"
+                   th:value="${endpoint.delaySeconds}" min="0" max="60"/>
+        </div>
+        <div class="col-md-4 d-flex align-items-end pb-2">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="jwtEnabled"
+                       name="jwtEnabled" th:checked="${endpoint.jwtEnabled}"/>
+                <label class="form-check-label" for="jwtEnabled"
+                       th:text="#{mock.jwtEnabled}">Require JWT</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project -->
+    <div class="mb-4">
+        <label class="form-label" th:text="#{mock.project}">Project</label>
+        <select name="projectId" class="form-select" required>
+            <option value="" disabled th:selected="${endpoint.project == null}">Select a project…</option>
+            <option th:each="p : ${projects}"
+                    th:value="${p.id}"
+                    th:text="${p.name}"
+                    th:selected="${endpoint.project != null and endpoint.project.id == p.id}">Project</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary" th:text="#{mock.save}">Save Mock</button>
+</form>
+</div>
+</div>
+
+<script>
+function addHeader() {
+    const c = document.getElementById('headersContainer');
+    const row = document.createElement('div');
+    row.className = 'row mb-2 header-row';
+    row.innerHTML = `
+        <div class="col-5"><input type="text" name="headerKeys" class="form-control" placeholder="Key"/></div>
+        <div class="col-5"><input type="text" name="headerValues" class="form-control" placeholder="Value"/></div>
+        <div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeHeader(this)"><i class="bi bi-x-lg"></i></button></div>`;
+    c.appendChild(row);
+}
+function removeHeader(btn) { btn.closest('.header-row').remove(); }
+</script>
+</section>
+</body>
+</html>

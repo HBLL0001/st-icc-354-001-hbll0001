@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section th:fragment="content">
+
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a th:href="@{/projects}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i><span th:text="#{btn.back}">Back</span>
+    </a>
+    <h2 class="mb-0 fw-semibold"
+        th:text="${project.id != null} ? #{project.edit} : #{project.new}">Project</h2>
+</div>
+
+<div class="card">
+    <div class="card-body p-4">
+        <form th:action="${project.id != null} ? @{/projects/{id}/edit(id=${project.id})} : @{/projects/new}"
+              method="post">
+            <div class="mb-3">
+                <label class="form-label" th:text="#{project.name}">Name</label>
+                <input type="text" name="name" class="form-control"
+                       th:value="${project.name}" required/>
+            </div>
+            <div class="mb-4">
+                <label class="form-label" th:text="#{project.description}">Description</label>
+                <textarea name="description" class="form-control" rows="3"
+                          th:text="${project.description}"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" th:text="#{project.save}">Save</button>
+        </form>
+    </div>
+</div>
+</section>
+</body>
+</html>
